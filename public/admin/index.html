@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DiceGram Admin</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛠️</text></svg>">
+<link rel="stylesheet" href="../shared/base.css">
+<link rel="stylesheet" href="admin.css">
+</head>
+<body>
+<header class="topbar">
+  <strong class="brand">🛠️ DiceGram Admin</strong>
+  <nav class="tabs" id="tabs" hidden>
+    <button data-tab="boards" class="active">Boards</button>
+    <button data-tab="games">Games</button>
+    <button data-tab="users">Players</button>
+    <button data-tab="withdrawals">Withdrawals</button>
+  </nav>
+  <button class="btn btn-sm" id="btn-logout" hidden>Log out</button>
+</header>
+
+<main>
+  <section id="login" class="panel login" hidden>
+    <h2>Admin sign in</h2>
+    <form id="form-login">
+      <label>Admin token<input id="admin-token" type="password" autocomplete="current-password" required></label>
+      <button class="btn btn-primary">Sign in</button>
+      <p class="muted small">Set with the <code>ADMIN_TOKEN</code> environment variable (default for local dev: <code>admin</code>).</p>
+    </form>
+  </section>
+
+  <!-- ===== Boards ===== -->
+  <section id="tab-boards" class="tab" hidden>
+    <div class="boards-layout">
+      <aside class="panel board-list">
+        <div class="row"><h3 class="grow">Boards</h3><button class="btn btn-sm btn-primary" id="btn-new-board">+ New</button></div>
+        <ul id="board-list"></ul>
+      </aside>
+
+      <div class="editor" id="editor" hidden>
+        <div class="panel">
+          <div class="settings-grid">
+            <label class="span2">Board name<input id="b-name" maxlength="60"></label>
+            <label>Columns<input id="b-cols" type="number" min="3" max="20"></label>
+            <label>Rows<input id="b-rows" type="number" min="3" max="20"></label>
+            <label>Background<input id="b-bg" type="color"></label>
+            <label>Cell<input id="b-cell" type="color"></label>
+            <label>Path<input id="b-path" type="color"></label>
+            <label>Text<input id="b-text" type="color"></label>
+          </div>
+          <div class="row">
+            <button class="btn btn-sm" id="btn-snake">Fill grid with snake path</button>
+            <button class="btn btn-sm" id="btn-clear">Clear path</button>
+            <span class="grow"></span>
+            <span class="muted small" id="b-dirty"></span>
+            <button class="btn btn-danger btn-sm" id="btn-delete-board">Delete board</button>
+            <button class="btn btn-primary" id="btn-save-board">Save board</button>
+          </div>
+        </div>
+
+        <div class="editor-main">
+          <div class="panel canvas">
+            <p class="muted small hint">Click an empty square to extend the path. Click a cell to edit it. The first cell is always Start, the last is always Finish.</p>
+            <div id="b-canvas"></div>
+          </div>
+          <div class="panel cell-form" id="cell-form">
+            <p class="muted">Select a cell to edit it.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== Games ===== -->
+  <section id="tab-games" class="tab" hidden>
+    <div class="games-layout">
+      <form class="panel" id="form-game">
+        <h3>New game</h3>
+        <label>Name<input id="ng-name" maxlength="60" required placeholder="Friday race"></label>
+        <label>Board<select id="ng-board" required></select></label>
+        <div class="row">
+          <label class="grow">Turn price (GRAM)<input id="ng-price" type="number" min="0.000000001" step="any" value="1"></label>
+          <label class="grow">Max players<input id="ng-max" type="number" min="1" max="8" value="6"></label>
+        </div>
+        <label>End the game after this many players finish<input id="ng-end" type="number" min="1" max="8" value="1"></label>
+        <label>Finish prizes — one per line, by place, e.g. <code>GRAM 50</code>
+          <textarea id="ng-prizes" rows="3" placeholder="GRAM 50&#10;GRAM 20"></textarea></label>
+        <label class="check"><input type="checkbox" id="ng-start" checked> Start immediately</label>
+        <button class="btn btn-primary">Create game</button>
+        <p class="muted small">The board is copied into the game, so later board edits don't change running games.</p>
+      </form>
+      <div id="game-admin-list" class="stack"></div>
+    </div>
+  </section>
+
+  <!-- ===== Players ===== -->
+  <section id="tab-users" class="tab panel" hidden>
+    <h3>Players</h3>
+    <table class="table" id="users-table"></table>
+  </section>
+
+  <!-- ===== Withdrawals ===== -->
+  <section id="tab-withdrawals" class="tab panel" hidden>
+    <h3>Withdrawal requests</h3>
+    <p class="muted small">Prototype: send the tokens manually from the prize wallet, then mark the request as paid with the transaction hash. Rejecting returns the amount to the player.</p>
+    <table class="table" id="wd-table"></table>
+  </section>
+</main>
+
+<script type="module" src="admin.js"></script>
+</body>
+</html>

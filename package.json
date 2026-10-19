@@ -1,0 +1,12 @@
+{
+  "name": "dicegram",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Multiplayer crypto board game prototype: buy turns with GRAM, roll, win token prizes.",
+  "type": "module",
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "start": "node server/index.js",
+    "test": "node --test test/*.test.js"
+  }
+}

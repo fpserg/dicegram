@@ -1,0 +1,82 @@
+:root {
+  --bg: #0b1020;
+  --panel: #131a2e;
+  --panel-2: #1a2340;
+  --line: #27314f;
+  --text: #e6e9f2;
+  --muted: #8b95b3;
+  --accent: #38bdf8;
+  --gold: #fbbf24;
+  --good: #22c55e;
+  --bad: #ef4444;
+  --radius: 14px;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body {
+  background: radial-gradient(1200px 600px at 20% -10%, #1b2550 0%, transparent 60%), var(--bg);
+  color: var(--text);
+  font: 15px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  min-height: 100vh;
+}
+h1, h2, h3 { margin: 0 0 .5em; line-height: 1.2; }
+a { color: var(--accent); }
+[hidden] { display: none !important; }
+
+.btn {
+  appearance: none; border: 1px solid var(--line); background: var(--panel-2); color: var(--text);
+  padding: .55em 1em; border-radius: 10px; font: inherit; font-weight: 600; cursor: pointer;
+  transition: transform .08s, background .15s, opacity .15s; text-decoration: none; text-align: center;
+}
+.btn:hover:not(:disabled) { background: #222d52; }
+.btn:active:not(:disabled) { transform: translateY(1px); }
+.btn:disabled { opacity: .45; cursor: not-allowed; }
+.btn-primary { background: linear-gradient(180deg, #38bdf8, #0284c7); border-color: #0ea5e9; color: #04111f; }
+.btn-primary:hover:not(:disabled) { background: linear-gradient(180deg, #7dd3fc, #0ea5e9); }
+.btn-gold { background: linear-gradient(180deg, #fcd34d, #f59e0b); border-color: #f59e0b; color: #241500; }
+.btn-gold:hover:not(:disabled) { background: linear-gradient(180deg, #fde68a, #fbbf24); }
+.btn-danger { color: #fecaca; border-color: #7f1d1d; }
+.btn-sm { padding: .3em .7em; font-size: 13px; }
+
+input, select, textarea {
+  font: inherit; color: var(--text); background: #0d1428; border: 1px solid var(--line);
+  border-radius: 8px; padding: .5em .65em; width: 100%;
+}
+input:focus, select:focus, textarea:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+label { display: block; font-size: 13px; color: var(--muted); margin-bottom: .75em; }
+label > input, label > select, label > textarea { margin-top: .25em; }
+
+.panel { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px; }
+.muted { color: var(--muted); }
+.row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.grow { flex: 1; }
+.pill { display: inline-block; padding: .1em .6em; border-radius: 99px; font-size: 12px; font-weight: 700; background: var(--panel-2); border: 1px solid var(--line); }
+.pill.lobby { color: #fde68a; }
+.pill.running { color: #86efac; }
+.pill.finished { color: var(--muted); }
+.gram { color: var(--gold); font-weight: 700; }
+
+.toast {
+  position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%); z-index: 100;
+  background: #1f2937; border: 1px solid var(--line); padding: .7em 1.1em; border-radius: 10px;
+  box-shadow: 0 10px 30px rgba(0,0,0,.4); white-space: pre-line; max-width: calc(100vw - 32px);
+}
+.toast.error { border-color: var(--bad); color: #fecaca; }
+
+/* board */
+.board-svg { width: 100%; height: auto; display: block; border-radius: var(--radius); }
+.board-svg .cell { cursor: default; }
+.board-svg .cell-index { font-size: 15px; font-weight: 700; opacity: .7; }
+.board-svg .cell-icon { font-size: 34px; }
+.board-svg .cell-label { font-size: 13px; font-weight: 600; }
+.board-svg .cell.selected rect { stroke: #fff; stroke-width: 5; }
+.board-svg .jump-line { stroke-width: 4; stroke-dasharray: 8 10; stroke-linecap: round; opacity: .5; pointer-events: none; }
+.board-svg .jump-line.up { stroke: #a78bfa; }
+.board-svg .jump-line.down { stroke: #f87171; }
+.board-svg .ghost-cell { fill: rgba(255,255,255,.03); stroke: rgba(255,255,255,.12); stroke-dasharray: 6 6; stroke-width: 2; cursor: copy; }
+.board-svg .ghost-cell:hover { fill: rgba(56,189,248,.15); stroke: var(--accent); }
+.board-svg .pawn { transition: transform .2s ease-out; }
+.board-svg .pawn.jumping { transition: transform .45s cubic-bezier(.5,-0.4,.5,1.4); }
+.board-svg .pawn.me circle { stroke: var(--gold); stroke-width: 3; }
+.board-svg .pawn.moving { filter: drop-shadow(0 0 6px rgba(255,255,255,.7)); }

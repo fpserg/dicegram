@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DiceGram</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎲</text></svg>">
+<link rel="stylesheet" href="shared/base.css">
+<link rel="stylesheet" href="play.css">
+</head>
+<body>
+<header class="topbar">
+  <a class="brand" href="#/">🎲 DiceGram</a>
+  <div class="row" id="account" hidden>
+    <span class="muted" id="me-name"></span>
+    <button class="wallet-chip" id="btn-wallet" title="Open wallet"><span class="coin">G</span><span id="me-gram">0</span> GRAM</button>
+    <button class="btn btn-gold btn-sm" id="btn-faucet" hidden>+ Test GRAM</button>
+  </div>
+</header>
+
+<main>
+  <!-- sign in -->
+  <section id="view-auth" class="view narrow" hidden>
+    <div class="panel hero">
+      <h1>Roll. Move. Win crypto.</h1>
+      <p class="muted">Buy turns with GRAM, race other players across the board, collect token prizes on the way and withdraw them when the game ends.</p>
+      <form id="form-register" class="row">
+        <input id="reg-name" class="grow" placeholder="Your player name" maxlength="20" required autocomplete="nickname">
+        <button class="btn btn-primary">Start playing</button>
+      </form>
+    </div>
+  </section>
+
+  <!-- lobby -->
+  <section id="view-lobby" class="view" hidden>
+    <div class="row lobby-head"><h2 class="grow">Games</h2><button class="btn btn-sm" id="btn-refresh">Refresh</button></div>
+    <div id="game-list" class="game-list"></div>
+  </section>
+
+  <!-- game -->
+  <section id="view-game" class="view" hidden>
+    <div class="game-layout">
+      <div class="board-wrap panel"><div id="board"></div></div>
+      <aside class="side">
+        <div class="panel">
+          <div class="row"><h2 class="grow" id="g-name"></h2><span class="pill" id="g-status"></span></div>
+          <p class="muted small" id="g-meta"></p>
+          <div id="g-join" hidden>
+            <button class="btn btn-primary wide" id="btn-join">Join game</button>
+          </div>
+        </div>
+
+        <div class="panel" id="g-controls" hidden>
+          <div class="turns-row">
+            <div><div class="big" id="g-turns">0</div><div class="muted small">turns left</div></div>
+            <div class="dice" id="dice" aria-live="polite"></div>
+            <button class="btn btn-primary roll-btn" id="btn-roll">Roll</button>
+          </div>
+          <p class="note" id="g-note"></p>
+          <div class="buy">
+            <div class="stepper">
+              <button class="btn btn-sm" data-step="-1" aria-label="Fewer turns">−</button>
+              <input id="buy-count" type="number" min="1" max="100" value="5" aria-label="Turns to buy">
+              <button class="btn btn-sm" data-step="1" aria-label="More turns">+</button>
+            </div>
+            <button class="btn btn-gold grow" id="btn-buy">Buy</button>
+          </div>
+        </div>
+
+        <div class="panel">
+          <h3>Players</h3>
+          <ul class="players" id="g-players"></ul>
+        </div>
+
+        <div class="panel">
+          <h3>Board legend</h3>
+          <ul class="legend" id="g-legend"></ul>
+        </div>
+
+        <div class="panel">
+          <h3>Game log</h3>
+          <ol class="log" id="g-log"></ol>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <!-- wallet -->
+  <section id="view-wallet" class="view narrow" hidden>
+    <div class="panel">
+      <h2>Wallet</h2>
+      <div class="balances">
+        <div class="bal"><div class="muted small">GRAM balance</div><div class="big gram" id="w-gram">0</div><div class="muted small">spend on turns</div></div>
+        <div class="bal"><div class="muted small">Prizes in running games</div><div id="w-locked" class="tokens"></div><div class="muted small">unlock when the game ends</div></div>
+        <div class="bal"><div class="muted small">Withdrawable prizes</div><div id="w-prizes" class="tokens"></div></div>
+      </div>
+      <div class="faucet-box" id="w-faucet" hidden>
+        <p class="small"><strong>Prototype mode:</strong> real GRAM deposits are not connected yet. Add test GRAM instead:</p>
+        <div class="row">
+          <button class="btn btn-gold btn-sm" data-faucet="10">+10</button>
+          <button class="btn btn-gold btn-sm" data-faucet="50">+50</button>
+          <button class="btn btn-gold btn-sm" data-faucet="100">+100</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h3>Withdraw prizes</h3>
+      <form id="form-withdraw">
+        <div class="row">
+          <label class="grow">Token<select id="wd-token"></select></label>
+          <label class="grow">Amount<input id="wd-amount" type="number" step="any" min="0"></label>
+        </div>
+        <label>TON wallet address<input id="wd-address" placeholder="UQ… or EQ…" autocomplete="off" spellcheck="false"></label>
+        <button class="btn btn-primary" id="btn-withdraw">Request withdrawal</button>
+      </form>
+      <table class="table" id="w-withdrawals"></table>
+    </div>
+
+    <div class="panel">
+      <h3>History</h3>
+      <table class="table" id="w-ledger"></table>
+    </div>
+  </section>
+</main>
+
+<div class="modal" id="task-modal" hidden>
+  <div class="panel modal-card" role="dialog" aria-modal="true" aria-labelledby="task-q">
+    <div class="muted small">❓ Task — answer to win <span id="task-reward"></span></div>
+    <h3 id="task-q"></h3>
+    <div id="task-options" class="task-options"></div>
+    <button class="link" id="btn-task-skip">Skip task (no reward)</button>
+  </div>
+</div>
+
+<script type="module" src="play.js"></script>
+</body>
+</html>
