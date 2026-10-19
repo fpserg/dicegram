@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import * as engine from '../server/engine.js';
-import { demoBoard } from '../server/seed.js';
+import * as engine from '../public/shared/engine.js';
+import { demoBoard } from '../public/shared/demo.js';
 
 // rng that returns queued values (clamped into range), then falls back to min.
 const seq = (...vals) => (min, max) => Math.max(min, Math.min(max, vals.length ? vals.shift() : min));

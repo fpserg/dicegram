@@ -8,6 +8,26 @@ when it ends.
 
 Zero dependencies — Node.js 20+ only.
 
+## Two ways to run it
+
+**1. No install (serverless app)** — `public/app.html`. The whole game runs in the
+browser and keeps its state in a pluggable store (`public/standalone/store.js`):
+
+- **On claude.ai as an Artifact** — uses the artifact's shared database, so it is real
+  multiplayer across phones. The artifact owner sees the **Admin** button (board designer,
+  games, players, withdrawals); people it's shared with just play.
+- **Anywhere else** (GitHub Pages, a local file server) — single-device mode: state is
+  saved in that browser only. Good for trying boards out. `.github/workflows/pages.yml`
+  deploys it to GitHub Pages on every push to `main` (enable it once under
+  Settings → Pages → Source: *GitHub Actions*).
+
+In this mode the rules run on each player's device, so a determined player could cheat
+(e.g. read quiz answers or edit their balance). Fine for test GRAM; real money needs
+the server.
+
+**2. Node server** (`npm start`) — the authoritative version: dice, task answers and
+balances live on the server, with a REST API and live updates over SSE.
+
 ```sh
 npm start          # http://localhost:3000  (player app)
                    # http://localhost:3000/admin  (admin app, token "admin")
@@ -76,11 +96,13 @@ reaching the finish that way counts).
 ## Layout
 
 ```
-server/engine.js   game rules (pure, unit-tested)
-server/app.js      HTTP API, SSE, money ledger, static files
-server/seed.js     demo board + game created on first start
-public/            player app
-public/admin/      admin app
-public/shared/     board renderer + base styles used by both
-test/              node:test suites
+public/shared/engine.js   game rules (pure, unit-tested; shared by server and browser)
+public/shared/demo.js     demo board
+public/shared/board.js    SVG board renderer
+public/app.html           serverless app (player + admin), see public/standalone/
+public/index.html         player app for the Node server
+public/admin/             admin app for the Node server
+server/app.js             HTTP API, SSE, money ledger, static files
+server/seed.js            demo board + game created on first start
+test/                     node:test suites
 ```

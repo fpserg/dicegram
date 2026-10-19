@@ -1,0 +1,236 @@
+<title>DiceGram</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="Multiplayer dice board game: buy turns with GRAM, race across the board, win token prizes.">
+<link rel="stylesheet" href="shared/base.css">
+<link rel="stylesheet" href="standalone/app.css">
+
+<header class="bar">
+  <button class="brand" id="nav-home" type="button">🎲 DiceGram</button>
+  <div class="bar-right" id="account" hidden>
+    <button class="wallet-chip" id="nav-wallet" type="button" title="Open wallet"><span class="coin">G</span><span id="me-gram">0</span></button>
+    <button class="btn btn-gold btn-sm" id="btn-faucet" type="button" aria-label="Add 10 test GRAM">+10<span class="hide-narrow"> test GRAM</span></button>
+    <button class="btn btn-sm" id="nav-admin" type="button" hidden>Admin</button>
+  </div>
+</header>
+
+<div class="mode-note" id="mode-note" hidden></div>
+
+<main class="wrap">
+  <section id="view-loading" class="view">
+    <div class="panel empty muted">Loading the board…</div>
+  </section>
+
+  <!-- first visit -->
+  <section id="view-welcome" class="view narrow" hidden>
+    <div class="panel hero">
+      <h1>Roll. Move. Win crypto.</h1>
+      <p class="muted">Buy turns with GRAM, race other players across the board, grab token prizes on the way and withdraw them when the game ends.</p>
+      <form id="form-name" class="row">
+        <input id="welcome-name" class="grow" placeholder="Your player name" maxlength="20" minlength="2" required autocomplete="nickname">
+        <button class="btn btn-primary" type="submit">Start playing</button>
+      </form>
+      <p class="muted small">Prototype: you get free test GRAM, nothing here costs real money.</p>
+    </div>
+  </section>
+
+  <!-- lobby -->
+  <section id="view-lobby" class="view" hidden>
+    <h2>Games</h2>
+    <div id="game-list" class="game-list"></div>
+  </section>
+
+  <!-- game -->
+  <section id="view-game" class="view" hidden>
+    <div class="game-layout">
+      <div class="board-col">
+        <div class="game-head">
+          <button class="link" id="btn-back" type="button">← Games</button>
+          <h2 id="g-name"></h2>
+          <span class="pill" id="g-status"></span>
+        </div>
+        <div class="board-wrap"><div id="board"></div></div>
+      </div>
+      <aside class="side">
+        <div class="panel" id="g-join" hidden>
+          <p class="small" id="g-join-text"></p>
+          <button class="btn btn-primary wide" id="btn-join" type="button">Join game</button>
+        </div>
+
+        <div class="panel controls" id="g-controls" hidden>
+          <div class="turns-row">
+            <div><div class="big" id="g-turns">0</div><div class="muted small">turns left</div></div>
+            <div class="dice" id="dice" role="img" aria-label="Die"></div>
+            <button class="btn btn-primary roll-btn" id="btn-roll" type="button">Roll</button>
+          </div>
+          <p class="note" id="g-note"></p>
+          <div class="buy">
+            <div class="stepper">
+              <button class="btn btn-sm" data-step="-1" type="button" aria-label="Fewer turns">−</button>
+              <input id="buy-count" type="number" min="1" max="100" value="5" inputmode="numeric" aria-label="Turns to buy">
+              <button class="btn btn-sm" data-step="1" type="button" aria-label="More turns">+</button>
+            </div>
+            <button class="btn btn-gold grow" id="btn-buy" type="button">Buy</button>
+          </div>
+        </div>
+
+        <div class="panel">
+          <p class="small muted" id="g-meta"></p>
+          <h3>Players</h3>
+          <ul class="players" id="g-players"></ul>
+        </div>
+
+        <details class="panel">
+          <summary>Board legend</summary>
+          <ul class="legend" id="g-legend"></ul>
+        </details>
+
+        <div class="panel">
+          <h3>Game log</h3>
+          <ol class="log" id="g-log"></ol>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <!-- wallet -->
+  <section id="view-wallet" class="view narrow" hidden>
+    <div class="panel">
+      <h2>Wallet</h2>
+      <div class="balances">
+        <div class="bal"><div class="muted small">GRAM balance</div><div class="big gram" id="w-gram">0</div><div class="muted small">spend on turns</div></div>
+        <div class="bal"><div class="muted small">Prizes in running games</div><div id="w-locked" class="tokens"></div><div class="muted small">unlock when the game ends</div></div>
+        <div class="bal"><div class="muted small">Withdrawable prizes</div><div id="w-prizes" class="tokens"></div></div>
+      </div>
+      <div class="faucet-box">
+        <p class="small"><strong>Prototype mode:</strong> real GRAM deposits are not connected yet. Add test GRAM instead:</p>
+        <div class="row">
+          <button class="btn btn-gold btn-sm" data-faucet="10" type="button">+10</button>
+          <button class="btn btn-gold btn-sm" data-faucet="50" type="button">+50</button>
+          <button class="btn btn-gold btn-sm" data-faucet="100" type="button">+100</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h3>Withdraw prizes</h3>
+      <form id="form-withdraw">
+        <div class="row">
+          <label class="grow">Token<select id="wd-token"></select></label>
+          <label class="grow">Amount<input id="wd-amount" type="number" step="any" min="0" inputmode="decimal"></label>
+        </div>
+        <label>TON wallet address<input id="wd-address" placeholder="UQ… or EQ…" autocomplete="off" spellcheck="false"></label>
+        <button class="btn btn-primary" id="btn-withdraw" type="submit">Request withdrawal</button>
+      </form>
+      <div class="table-scroll"><table class="table" id="w-withdrawals"></table></div>
+    </div>
+
+    <div class="panel">
+      <h3>History</h3>
+      <div class="table-scroll"><table class="table" id="w-ledger"></table></div>
+    </div>
+  </section>
+
+  <!-- admin -->
+  <section id="view-admin" class="view" hidden>
+    <nav class="tabs" id="admin-tabs">
+      <button data-tab="boards" class="active" type="button">Boards</button>
+      <button data-tab="games" type="button">Games</button>
+      <button data-tab="players" type="button">Players</button>
+      <button data-tab="withdrawals" type="button">Withdrawals</button>
+    </nav>
+
+    <div id="tab-boards" class="tab">
+      <div class="boards-layout">
+        <div class="panel board-list">
+          <div class="row"><h3 class="grow">Boards</h3><button class="btn btn-sm btn-primary" id="btn-new-board" type="button">+ New</button></div>
+          <ul id="board-list"></ul>
+          <button class="btn btn-sm" id="btn-sample" type="button">Add sample board</button>
+        </div>
+
+        <div class="editor" id="editor" hidden>
+          <div class="panel">
+            <div class="settings-grid">
+              <label class="span2">Board name<input id="b-name" maxlength="60"></label>
+              <label>Columns<input id="b-cols" type="number" min="3" max="20" inputmode="numeric"></label>
+              <label>Rows<input id="b-rows" type="number" min="3" max="20" inputmode="numeric"></label>
+              <label>Background<input id="b-bg" type="color"></label>
+              <label>Cell<input id="b-cell" type="color"></label>
+              <label>Path<input id="b-path" type="color"></label>
+              <label>Text<input id="b-text" type="color"></label>
+            </div>
+            <div class="row">
+              <button class="btn btn-sm" id="btn-snake" type="button">Fill grid with snake path</button>
+              <button class="btn btn-sm" id="btn-clear" type="button">Clear path</button>
+              <span class="grow"></span>
+              <span class="dirty small" id="b-dirty"></span>
+              <button class="btn btn-danger btn-sm" id="btn-delete-board" type="button">Delete</button>
+              <button class="btn btn-primary" id="btn-save-board" type="button">Save board</button>
+            </div>
+          </div>
+          <div class="editor-main">
+            <div class="panel canvas">
+              <p class="muted small hint">Tap an empty square to extend the path. Tap a cell to edit it. The first cell is always Start, the last is always Finish.</p>
+              <div id="b-canvas"></div>
+            </div>
+            <div class="panel cell-form" id="cell-form"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="tab-games" class="tab" hidden>
+      <div class="games-layout">
+        <form class="panel" id="form-game">
+          <h3>New game</h3>
+          <label>Name<input id="ng-name" maxlength="60" required placeholder="Friday race"></label>
+          <label>Board<select id="ng-board" required></select></label>
+          <div class="row">
+            <label class="grow">Turn price (GRAM)<input id="ng-price" type="number" min="0.000000001" step="any" value="1" inputmode="decimal"></label>
+            <label class="grow">Max players<input id="ng-max" type="number" min="1" max="8" value="6" inputmode="numeric"></label>
+          </div>
+          <label>End the game after this many players finish<input id="ng-end" type="number" min="1" max="8" value="1" inputmode="numeric"></label>
+          <label>Finish prizes, one per line by place, e.g. <code>GRAM 50</code>
+            <textarea id="ng-prizes" rows="3" placeholder="GRAM 50&#10;GRAM 20"></textarea></label>
+          <label class="check"><input type="checkbox" id="ng-start" checked> Start immediately</label>
+          <button class="btn btn-primary" type="submit">Create game</button>
+          <p class="muted small">The board is copied into the game, so later board edits don't change running games.</p>
+        </form>
+        <div id="game-admin-list" class="stack"></div>
+      </div>
+    </div>
+
+    <div id="tab-players" class="tab panel" hidden>
+      <h3>Players</h3>
+      <div class="table-scroll"><table class="table" id="users-table"></table></div>
+    </div>
+
+    <div id="tab-withdrawals" class="tab panel" hidden>
+      <h3>Withdrawal requests</h3>
+      <p class="muted small">Prototype: send the tokens manually from the prize wallet, then mark the request as paid with the transaction hash. Rejecting returns the amount to the player.</p>
+      <div class="table-scroll"><table class="table" id="wd-table"></table></div>
+    </div>
+  </section>
+</main>
+
+<div class="modal" id="task-modal" hidden>
+  <div class="panel modal-card" role="dialog" aria-modal="true" aria-labelledby="task-q">
+    <div class="muted small">❓ Task: answer to win <span id="task-reward"></span></div>
+    <h3 id="task-q"></h3>
+    <div id="task-options" class="task-options"></div>
+    <button class="link" id="btn-task-skip" type="button">Skip task (no reward)</button>
+  </div>
+</div>
+
+<div class="modal" id="ask-modal" hidden>
+  <form class="panel modal-card" id="ask-form" role="dialog" aria-modal="true" aria-labelledby="ask-title">
+    <h3 id="ask-title"></h3>
+    <p class="small muted" id="ask-body"></p>
+    <input id="ask-input" hidden autocomplete="off">
+    <div class="row end">
+      <button class="btn" id="ask-cancel" type="button">Cancel</button>
+      <button class="btn btn-primary" id="ask-ok" type="submit">OK</button>
+    </div>
+  </form>
+</div>
+
+<script type="module" src="standalone/app.js"></script>

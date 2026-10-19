@@ -13,7 +13,7 @@ import crypto from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import { openDb, newId, newToken } from './db.js';
 import { seed } from './seed.js';
-import * as engine from './engine.js';
+import * as engine from '../public/shared/engine.js';
 
 const { GameError, amt } = engine;
 const PUBLIC_DIR = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', 'public');
@@ -21,6 +21,7 @@ const MIME = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; cha
 // TON user-friendly (48 chars base64url) or raw (workchain:hex) address.
 const TON_ADDRESS = /^(?:[EUk0][Qf][A-Za-z0-9_-]{46}|-?\d{1,3}:[0-9a-fA-F]{64})$/;
 const FAUCET_MAX = 1000;
+const PAGE_HEAD = '<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"></head><body>';
 
 export function createApp({ dbFile = null, adminToken = 'admin', devFaucet = true, rng = engine.defaultRng } = {}) {
   const db = openDb(dbFile);
@@ -369,6 +370,11 @@ export function createApp({ dbFile = null, adminToken = 'admin', devFaucet = tru
       return res.end('Not found');
     }
     res.writeHead(200, { 'content-type': MIME[path.extname(file)] || 'application/octet-stream', 'cache-control': 'no-cache' });
+    // app.html is written as an artifact page fragment; give it a document skeleton here.
+    if (file.endsWith('.html')) {
+      const html = fs.readFileSync(file, 'utf8');
+      return res.end(/^\s*<!doctype/i.test(html) ? html : `${PAGE_HEAD}${html}</body></html>`);
+    }
     fs.createReadStream(file).pipe(res);
   }
 

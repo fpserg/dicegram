@@ -1,7 +1,6 @@
 // Pure game rules: board validation, movement, cell effects, finishing.
-// No I/O here — the server owns balances and persistence, this module only
-// mutates the game object it is handed.
-import crypto from 'node:crypto';
+// No I/O here — the caller owns balances and persistence, this module only
+// mutates the game object it is handed. Runs in Node and in the browser.
 
 export class GameError extends Error {
   constructor(message, status = 400) {
@@ -16,7 +15,14 @@ export const PLAYER_COLORS = ['#ef4444', '#3b82f6', '#22c55e', '#eab308', '#a855
 const LOG_LIMIT = 100;
 
 export const amt = (x) => Math.round(Number(x) * 1e9) / 1e9;
-export const defaultRng = (min, max) => crypto.randomInt(min, max + 1);
+// Uniform integer in [min, max] from the platform CSPRNG (rejection sampling, no modulo bias).
+export function defaultRng(min, max) {
+  const span = max - min + 1;
+  const limit = Math.floor(0x100000000 / span) * span;
+  const buf = new Uint32Array(1);
+  do globalThis.crypto.getRandomValues(buf); while (buf[0] >= limit);
+  return min + (buf[0] % span);
+}
 
 // ---------- board validation ----------
 
